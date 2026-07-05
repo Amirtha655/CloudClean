@@ -1,0 +1,30 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AssumeAndIdentity",
+      "Effect": "Allow",
+      "Action": ["sts:AssumeRole", "sts:GetCallerIdentity"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ScannerReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeVolumes",
+        "ec2:DescribeAddresses",
+        "ec2:DescribeSecurityGroups",
+        "s3:ListAllMyBuckets",
+        "s3:GetBucketLocation",
+        "s3:ListBucket",
+        "s3:GetBucketTagging",
+        "lambda:ListFunctions",
+        "lambda:ListTags",
+        "cloudwatch:GetMetricStatistics",
+        "rds:DescribeDBInstances"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

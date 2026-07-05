@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.venv/
+__pycache__/
+*.pyc
+backend/cloudclean.db
+backend/.env
+.env
+*.local
+deploy/pkg/

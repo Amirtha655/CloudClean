@@ -1,0 +1,1 @@
+{"commands": ["\nset -e\ncd /opt/cloudclean\naws s3 cp s3://cloudclean-deploy-647106553742/backend.zip backend.zip --region ap-south-1\nunzip -o backend.zip -d backend || true\nchown -R ec2-user:ec2-user /opt/cloudclean\nsystemctl restart cloudclean\nsleep 2\nsystemctl is-active cloudclean\ncurl -s http://127.0.0.1:8000/health\n"]}

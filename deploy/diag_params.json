@@ -1,0 +1,1 @@
+{"commands": ["journalctl -u cloudclean -n 40 --no-pager; echo ---; /opt/cloudclean/backend/.venv/bin/python --version"]}
