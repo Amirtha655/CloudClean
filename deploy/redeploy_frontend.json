@@ -1,0 +1,1 @@
+{"commands": ["\nset -e\ncd /opt/cloudclean\naws s3 cp s3://cloudclean-deploy-647106553742/frontend.zip frontend.zip --region ap-south-1\nrm -rf frontend\nmkdir -p frontend\nunzip -o frontend.zip -d frontend || true\nchown -R ec2-user:ec2-user /opt/cloudclean\ncurl -s -o /dev/null -w \"frontend http: %{http_code}\n\" http://127.0.0.1/\n"]}

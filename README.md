@@ -12,7 +12,7 @@ An intelligent AWS Resource Lifecycle & Cost Management Platform — scans a rea
 
 - **Multi-region scanner** — real boto3 calls (not mocked) across EC2, EBS, Elastic IPs, Security Groups, S3, Lambda, and RDS
 - **Dependency graph engine** — before you delete an EC2 instance, see exactly what else depends on it (attached EBS volumes, security groups, Elastic IPs) and a computed risk score
-- **AI-style recommendation engine** — stopped EC2 instances, empty S3 buckets, idle Lambda functions (via real 30-day CloudWatch invocation data), and unattached EBS/EIPs each get a confidence-scored action (Terminate / Delete / Release)
+- **Smart recommendation engine** (rule-based over real signals, not ML) — stopped EC2 instances, empty S3 buckets, idle Lambda functions (via real 30-day CloudWatch invocation data), and unattached EBS/EIPs each get a confidence-scored action (Terminate / Delete / Release)
 - **Cleanup planner with dry run** — build a plan, see dependency warnings and estimated savings/duration, preview with zero side effects, then execute for real
 - **Cleanup history + PDF reports** — every run logged with who/when/what/savings, downloadable as a PDF via ReportLab
 - **Real Cognito auth** — signup/verify/login against an actual Cognito User Pool, with per-user data isolation (each user only ever sees their own connected accounts and scan results)

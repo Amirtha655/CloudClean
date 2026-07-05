@@ -24,7 +24,7 @@ const features = [
     icon: Network,
   },
   {
-    title: "AI Recommendation Engine",
+    title: "Smart Recommendations",
     desc: "Confidence-scored suggestions: terminate, delete, release — with the reasoning behind each one.",
     icon: BrainCircuit,
   },

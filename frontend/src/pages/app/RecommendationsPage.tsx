@@ -39,7 +39,7 @@ export function RecommendationsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-text">AI Recommendations</h1>
+          <h1 className="text-lg font-semibold text-text">Smart Recommendations</h1>
           <p className="text-sm text-text-dim">{recs?.length ?? 0} suggested actions across your accounts.</p>
         </div>
         {selected.size > 0 && (
