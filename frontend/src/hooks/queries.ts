@@ -77,6 +77,22 @@ export function useScanAccount() {
   });
 }
 
+export function useDisconnectAccount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (accountId: string) => {
+      await api.delete(`/accounts/${accountId}`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["accounts"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
+      qc.invalidateQueries({ queryKey: ["resources"] });
+      qc.invalidateQueries({ queryKey: ["recommendations"] });
+      qc.invalidateQueries({ queryKey: ["cost"] });
+    },
+  });
+}
+
 export function useInvalidateScanResults() {
   const qc = useQueryClient();
   return () => {

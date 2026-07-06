@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Clock, Loader2, XCircle, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Clock, Loader2, XCircle, ShieldCheck, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import {
   useAccounts,
   useConnectAccount,
+  useDisconnectAccount,
   useInvalidateScanResults,
   useScanAccount,
   useValidateAccount,
@@ -32,7 +33,10 @@ export function AccountConnectPage() {
   const connect = useConnectAccount();
   const validate = useValidateAccount();
   const scan = useScanAccount();
+  const disconnect = useDisconnectAccount();
   const invalidateScanResults = useInvalidateScanResults();
+
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const wasScanning = useRef<Set<string>>(new Set());
 
@@ -65,6 +69,10 @@ export function AccountConnectPage() {
     );
   }
 
+  function confirmDisconnect(id: string) {
+    disconnect.mutate(id, { onSettled: () => setConfirmingId(null) });
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -83,6 +91,7 @@ export function AccountConnectPage() {
             {isLoading && <p className="text-sm text-text-dim">Loading…</p>}
             {accounts?.map((a) => {
               const scanning = a.status === "scanning";
+              const confirming = confirmingId === a.id;
               return (
                 <div
                   key={a.id}
@@ -101,23 +110,52 @@ export function AccountConnectPage() {
                       Last scanned {formatDateTime(a.lastScanAt)} · {a.regions.length} regions
                     </p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => validate.mutate(a.id)}
-                      disabled={scanning}
-                    >
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                      Validate
-                    </Button>
-                    <Button size="sm" onClick={() => scan.mutate(a.id)} disabled={scanning}>
-                      {scanning ? "Scanning…" : "Scan now"}
-                    </Button>
-                  </div>
+                  {confirming ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-text-dim">Disconnect and delete all scanned data?</span>
+                      <Button size="sm" variant="ghost" onClick={() => setConfirmingId(null)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => confirmDisconnect(a.id)}
+                        disabled={disconnect.isPending}
+                      >
+                        {disconnect.isPending ? "Disconnecting…" : "Confirm"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => validate.mutate(a.id)}
+                        disabled={scanning}
+                      >
+                        <ShieldCheck className="h-3.5 w-3.5" />
+                        Validate
+                      </Button>
+                      <Button size="sm" onClick={() => scan.mutate(a.id)} disabled={scanning}>
+                        {scanning ? "Scanning…" : "Scan now"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setConfirmingId(a.id)}
+                        disabled={scanning}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Disconnect
+                      </Button>
+                    </div>
+                  )}
                 </div>
               );
             })}
+            {accounts?.length === 0 && (
+              <p className="text-sm text-text-faint">No accounts connected yet.</p>
+            )}
           </CardContent>
         </Card>
 

@@ -95,3 +95,27 @@ def trigger_scan(
     db.refresh(account)
     background_tasks.add_task(_run_scan_background, account_id)
     return account
+
+
+@router.delete("/{account_id}", status_code=204)
+def disconnect_account(
+    account_id: str,
+    db: Session = Depends(get_db),
+    user: models.User = Depends(get_current_user),
+):
+    """Removes the account and its scanned data from CloudClean only — does not
+    touch anything in real AWS (no role deletion, no resource changes)."""
+    account = _get_owned_account(db, account_id, user)
+
+    resource_ids = [r.id for r in db.query(models.Resource.id).filter(models.Resource.account_id == account_id)]
+    if resource_ids:
+        db.query(models.DependencyEdge).filter(
+            models.DependencyEdge.source_id.in_(resource_ids) | models.DependencyEdge.target_id.in_(resource_ids)
+        ).delete(synchronize_session=False)
+        db.query(models.Recommendation).filter(models.Recommendation.resource_id.in_(resource_ids)).delete(
+            synchronize_session=False
+        )
+        db.query(models.Resource).filter(models.Resource.account_id == account_id).delete(synchronize_session=False)
+
+    db.delete(account)
+    db.commit()
