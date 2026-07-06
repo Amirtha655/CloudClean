@@ -199,5 +199,10 @@ class AuthResponse(CamelModel):
     name: str
 
 
+class UserOut(CamelModel):
+    email: str
+    name: str
+
+
 class MessageResponse(CamelModel):
     message: str

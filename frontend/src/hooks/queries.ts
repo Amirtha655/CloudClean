@@ -36,6 +36,14 @@ export function useLogin() {
   });
 }
 
+export function useCurrentUser() {
+  return useQuery<{ email: string; name: string }>({
+    queryKey: ["me"],
+    queryFn: async () => (await api.get("/auth/me")).data,
+    retry: false,
+  });
+}
+
 export function useAccounts() {
   return useQuery<AwsAccount[]>({
     queryKey: ["accounts"],

@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from app.aws import cognito
-from app.schemas.common import LoginRequest, SignupRequest, VerifyRequest, AuthResponse, MessageResponse
+from app.core.security import get_current_user
+from app.db import models
+from app.schemas.common import LoginRequest, SignupRequest, VerifyRequest, AuthResponse, MessageResponse, UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -22,3 +24,8 @@ def verify(payload: VerifyRequest):
 def login(payload: LoginRequest):
     token = cognito.login(payload.email, payload.password)
     return AuthResponse(token=token, email=payload.email, name=payload.email.split("@")[0])
+
+
+@router.get("/me", response_model=UserOut)
+def me(user: models.User = Depends(get_current_user)):
+    return UserOut(email=user.email, name=user.name)
