@@ -12,8 +12,24 @@ const REGIONS = ["us-east-1", "us-west-2", "eu-west-1", "ap-south-1"];
 const SERVICES = ["EC2", "Lambda", "S3", "RDS", "EBS", "ElasticIP", "SecurityGroup", "LoadBalancer", "DynamoDB", "ECS"];
 const ENVIRONMENTS = ["production", "staging", "development", "testing"];
 
+function filtersFromTemplate(): ResourceFilters {
+  const raw = sessionStorage.getItem("cloudclean_template_filters");
+  if (!raw) return {};
+  sessionStorage.removeItem("cloudclean_template_filters");
+  try {
+    const parsed = JSON.parse(raw) as Record<string, string>;
+    return {
+      environment: parsed.environment,
+      excludeEnvironment: parsed.excludeEnvironment,
+      unused: parsed.unused === undefined ? undefined : parsed.unused === "true",
+    };
+  } catch {
+    return {};
+  }
+}
+
 export function ResourceExplorerPage() {
-  const [filters, setFilters] = useState<ResourceFilters>({});
+  const [filters, setFilters] = useState<ResourceFilters>(filtersFromTemplate);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
@@ -45,6 +61,18 @@ export function ResourceExplorerPage() {
           <Button onClick={sendToPlanner}>Plan cleanup ({selected.size})</Button>
         )}
       </div>
+
+      {filters.excludeEnvironment && (
+        <div className="flex items-center gap-2 rounded-md border border-accent/30 bg-accent/5 px-3 py-2 text-xs text-text-dim">
+          Excluding environment=<span className="font-medium text-text">{filters.excludeEnvironment}</span>
+          <button
+            className="ml-auto text-accent hover:underline"
+            onClick={() => setFilters({ ...filters, excludeEnvironment: undefined })}
+          >
+            Clear
+          </button>
+        </div>
+      )}
 
       <Card className="p-4">
         <div className="flex flex-wrap gap-2">

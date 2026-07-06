@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, ChevronDown, LogOut, Settings } from "lucide-react";
+import { Bell, ChevronDown, LogOut } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { AwsAccount } from "@/types";
@@ -45,16 +45,6 @@ export function Topbar() {
               <div className="absolute right-0 top-full z-20 mt-2 w-64 rounded-lg border border-border bg-surface p-3 shadow-lg">
                 <p className="text-xs font-medium text-text">Notifications</p>
                 <p className="mt-2 text-xs text-text-faint">No new notifications yet.</p>
-                <button
-                  className="mt-3 flex items-center gap-1.5 text-xs text-accent hover:underline"
-                  onClick={() => {
-                    setOpenMenu(null);
-                    navigate("/app/notifications");
-                  }}
-                >
-                  <Settings className="h-3 w-3" />
-                  Notification settings
-                </button>
               </div>
             </>
           )}

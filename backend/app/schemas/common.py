@@ -143,15 +143,6 @@ class CleanupTemplateOut(CamelModel):
     filters: dict[str, str]
 
 
-class ScheduledCleanupOut(CamelModel):
-    id: str
-    name: str
-    schedule_description: str
-    template_id: str | None
-    next_run_at: datetime
-    enabled: bool
-
-
 class CostAnalyticsOut(CamelModel):
     current_cost: float
     potential_savings: float
@@ -159,14 +150,6 @@ class CostAnalyticsOut(CamelModel):
     by_region: list[RegionCount]
     trend: list[TrendPoint]
     top_expensive: list[ResourceOut]
-
-
-class NotificationSettingsOut(CamelModel):
-    email: str
-    cleanup_started: bool
-    cleanup_completed: bool
-    cleanup_failed: bool
-    scheduled_reminder: bool
 
 
 class AdminStatsOut(CamelModel):

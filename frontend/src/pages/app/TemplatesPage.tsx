@@ -32,7 +32,15 @@ export function TemplatesPage() {
                 </span>
               ))}
             </div>
-            <Button size="sm" variant="secondary" className="mt-4" onClick={() => navigate("/app/explorer")}>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="mt-4"
+              onClick={() => {
+                sessionStorage.setItem("cloudclean_template_filters", JSON.stringify(t.filters));
+                navigate("/app/explorer");
+              }}
+            >
               Use template
             </Button>
           </Card>

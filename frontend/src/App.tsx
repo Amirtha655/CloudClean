@@ -9,12 +9,10 @@ import { ResourceExplorerPage } from "@/pages/app/ResourceExplorerPage";
 import { DependencyGraphPage } from "@/pages/app/DependencyGraphPage";
 import { RecommendationsPage } from "@/pages/app/RecommendationsPage";
 import { CleanupPlannerPage } from "@/pages/app/CleanupPlannerPage";
-import { ScheduledCleanupPage } from "@/pages/app/ScheduledCleanupPage";
 import { TemplatesPage } from "@/pages/app/TemplatesPage";
 import { CostAnalyticsPage } from "@/pages/app/CostAnalyticsPage";
 import { CleanupHistoryPage } from "@/pages/app/CleanupHistoryPage";
 import { ReportsPage } from "@/pages/app/ReportsPage";
-import { NotificationsPage } from "@/pages/app/NotificationsPage";
 import { AdminPage } from "@/pages/app/AdminPage";
 
 export default function App() {
@@ -32,12 +30,10 @@ export default function App() {
         <Route path="dependencies" element={<DependencyGraphPage />} />
         <Route path="recommendations" element={<RecommendationsPage />} />
         <Route path="planner" element={<CleanupPlannerPage />} />
-        <Route path="scheduled" element={<ScheduledCleanupPage />} />
         <Route path="templates" element={<TemplatesPage />} />
         <Route path="cost" element={<CostAnalyticsPage />} />
         <Route path="history" element={<CleanupHistoryPage />} />
         <Route path="reports" element={<ReportsPage />} />
-        <Route path="notifications" element={<NotificationsPage />} />
         <Route path="admin" element={<AdminPage />} />
       </Route>
 

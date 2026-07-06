@@ -20,6 +20,7 @@ def list_resources(
     owner: str | None = None,
     risk: str | None = None,
     unused: bool | None = None,
+    excludeEnvironment: str | None = None,
     search: str | None = Query(default=None, description="Match against name, ARN, or resource ID"),
 ):
     q = (
@@ -41,6 +42,8 @@ def list_resources(
         q = q.filter(models.Resource.risk_score == risk)
     if unused is not None:
         q = q.filter(models.Resource.unused == unused)
+    if excludeEnvironment:
+        q = q.filter(models.Resource.environment != excludeEnvironment)
     if search:
         like = f"%{search}%"
         q = q.filter(

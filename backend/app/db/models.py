@@ -95,17 +95,6 @@ class CleanupTemplate(Base):
     filters: Mapped[dict] = mapped_column(JSON, default=dict)
 
 
-class ScheduledCleanup(Base):
-    __tablename__ = "scheduled_cleanups"
-
-    id: Mapped[str] = mapped_column(String, primary_key=True, default=gen_id)
-    name: Mapped[str] = mapped_column(String)
-    schedule_description: Mapped[str] = mapped_column(String)
-    template_id: Mapped[str | None] = mapped_column(ForeignKey("cleanup_templates.id"), nullable=True)
-    next_run_at: Mapped[datetime] = mapped_column(DateTime)
-    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
-
-
 class CleanupPlan(Base):
     __tablename__ = "cleanup_plans"
 
@@ -129,14 +118,3 @@ class CleanupHistory(Base):
     resources_failed: Mapped[int] = mapped_column(Integer, default=0)
     savings: Mapped[float] = mapped_column(Float, default=0)
     resource_names: Mapped[list] = mapped_column(JSON, default=list)
-
-
-class NotificationSetting(Base):
-    __tablename__ = "notification_settings"
-
-    id: Mapped[str] = mapped_column(String, primary_key=True, default=gen_id)
-    email: Mapped[str] = mapped_column(String, default="")
-    cleanup_started: Mapped[bool] = mapped_column(Boolean, default=True)
-    cleanup_completed: Mapped[bool] = mapped_column(Boolean, default=True)
-    cleanup_failed: Mapped[bool] = mapped_column(Boolean, default=True)
-    scheduled_reminder: Mapped[bool] = mapped_column(Boolean, default=True)

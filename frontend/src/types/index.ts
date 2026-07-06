@@ -128,15 +128,6 @@ export interface CleanupTemplate {
   filters: Record<string, string>;
 }
 
-export interface ScheduledCleanup {
-  id: string;
-  name: string;
-  scheduleDescription: string;
-  templateId: string | null;
-  nextRunAt: string;
-  enabled: boolean;
-}
-
 export interface CostAnalytics {
   currentCost: number;
   potentialSavings: number;
@@ -144,14 +135,6 @@ export interface CostAnalytics {
   byRegion: RegionCount[];
   trend: TrendPoint[];
   topExpensive: Resource[];
-}
-
-export interface NotificationSettings {
-  email: string;
-  cleanupStarted: boolean;
-  cleanupCompleted: boolean;
-  cleanupFailed: boolean;
-  scheduledReminder: boolean;
 }
 
 export interface AdminStats {

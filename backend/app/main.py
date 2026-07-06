@@ -14,10 +14,8 @@ from app.routers import (
     planner,
     history,
     templates,
-    scheduled,
     cost,
     reports,
-    notifications,
     admin,
 )
 
@@ -45,10 +43,8 @@ app.include_router(recommendations.router)
 app.include_router(planner.router)
 app.include_router(history.router)
 app.include_router(templates.router)
-app.include_router(scheduled.router)
 app.include_router(cost.router)
 app.include_router(reports.router)
-app.include_router(notifications.router)
 app.include_router(admin.router)
 
 

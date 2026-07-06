@@ -9,10 +9,8 @@ import type {
   CostAnalytics,
   DashboardSummary,
   DependencyGraph,
-  NotificationSettings,
   Recommendation,
   Resource,
-  ScheduledCleanup,
 } from "@/types";
 
 export function useSignup() {
@@ -122,6 +120,7 @@ export interface ResourceFilters {
   region?: string;
   service?: string;
   environment?: string;
+  excludeEnvironment?: string;
   state?: string;
   owner?: string;
   risk?: string;
@@ -188,41 +187,10 @@ export function useTemplates() {
   });
 }
 
-export function useScheduledCleanups() {
-  return useQuery<ScheduledCleanup[]>({
-    queryKey: ["scheduled"],
-    queryFn: async () => (await api.get("/scheduled")).data,
-  });
-}
-
-export function useToggleSchedule() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => (await api.post(`/scheduled/${id}/toggle`)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["scheduled"] }),
-  });
-}
-
 export function useCostAnalytics() {
   return useQuery<CostAnalytics>({
     queryKey: ["cost"],
     queryFn: async () => (await api.get("/cost/analytics")).data,
-  });
-}
-
-export function useNotificationSettings() {
-  return useQuery<NotificationSettings>({
-    queryKey: ["notifications"],
-    queryFn: async () => (await api.get("/notifications/settings")).data,
-  });
-}
-
-export function useUpdateNotificationSettings() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: NotificationSettings) =>
-      (await api.put("/notifications/settings", payload)).data,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
   });
 }
 

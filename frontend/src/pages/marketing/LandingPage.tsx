@@ -4,7 +4,7 @@ import {
   Network,
   BrainCircuit,
   ClipboardList,
-  CalendarClock,
+  Activity,
   FileBarChart,
   Server,
   Database,
@@ -35,7 +35,7 @@ const showcase = [
   { label: "Cost trend, 30 days", sub: "-18% after cleanup", icon: FileBarChart, from: "from-indigo-500", to: "to-blue-400" },
   { label: "Cleanup plan ready", sub: "22 resources · $38/mo saved", icon: ClipboardList, from: "from-purple-500", to: "to-violet-400" },
   { label: "Security group graph", sub: "EC2 → SG → VPC", icon: Network, from: "from-cyan-500", to: "to-sky-400" },
-  { label: "Scheduled cleanup", sub: "Every Friday at 7pm", icon: CalendarClock, from: "from-orange-500", to: "to-amber-400" },
+  { label: "Live scan in progress", sub: "status: scanning → connected", icon: Activity, from: "from-orange-500", to: "to-amber-400" },
 ];
 
 const steps = [
@@ -58,7 +58,7 @@ const features = [
   { title: "Dependency Graph Engine", desc: "See exactly what breaks before you delete anything.", icon: Network },
   { title: "Smart Recommendations", desc: "Confidence-scored suggestions: terminate, delete, release — with the reasoning behind each one.", icon: BrainCircuit },
   { title: "Cleanup Planner & Dry Run", desc: "Preview the full plan, estimated savings, and warnings before a single resource is touched.", icon: ClipboardList },
-  { title: "Scheduled Cleanup", desc: "Automate recurring cleanups by tag, environment, or age — powered by EventBridge.", icon: CalendarClock },
+  { title: "Async Live Scanning", desc: "Scans run in the background against real AWS APIs — the UI never blocks while it works.", icon: Activity },
   { title: "PDF Reports & History", desc: "Every cleanup logged with a downloadable report: who, what, when, and how much you saved.", icon: FileBarChart },
 ];
 
