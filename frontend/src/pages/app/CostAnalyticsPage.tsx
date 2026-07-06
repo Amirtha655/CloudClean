@@ -39,11 +39,11 @@ export function CostAnalyticsPage() {
         <CardContent className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.trend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e2430" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#5b6472" }} tickFormatter={(d) => d.slice(5)} />
-              <YAxis tick={{ fontSize: 11, fill: "#5b6472" }} />
-              <Tooltip contentStyle={{ background: "#11151d", border: "1px solid #1e2430", fontSize: 12 }} />
-              <Line type="monotone" dataKey="cost" stroke="#38bdf8" strokeWidth={2} dot={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7f0" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9497a8" }} tickFormatter={(d) => d.slice(5)} />
+              <YAxis tick={{ fontSize: 11, fill: "#9497a8" }} />
+              <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #e5e7f0", fontSize: 12, borderRadius: 8 }} />
+              <Line type="monotone" dataKey="cost" stroke="#7c3aed" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -57,10 +57,10 @@ export function CostAnalyticsPage() {
           <CardContent className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.byService} layout="vertical">
-                <XAxis type="number" tick={{ fontSize: 11, fill: "#5b6472" }} />
-                <YAxis dataKey="service" type="category" width={90} tick={{ fontSize: 11, fill: "#5b6472" }} />
-                <Tooltip contentStyle={{ background: "#11151d", border: "1px solid #1e2430", fontSize: 12 }} />
-                <Bar dataKey="cost" fill="#7dd3fc" radius={[0, 4, 4, 0]} />
+                <XAxis type="number" tick={{ fontSize: 11, fill: "#9497a8" }} />
+                <YAxis dataKey="service" type="category" width={90} tick={{ fontSize: 11, fill: "#9497a8" }} />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #e5e7f0", fontSize: 12, borderRadius: 8 }} />
+                <Bar dataKey="cost" fill="#3b82f6" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -73,11 +73,11 @@ export function CostAnalyticsPage() {
           <CardContent className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.byRegion}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e2430" />
-                <XAxis dataKey="region" tick={{ fontSize: 11, fill: "#5b6472" }} />
-                <YAxis tick={{ fontSize: 11, fill: "#5b6472" }} />
-                <Tooltip contentStyle={{ background: "#11151d", border: "1px solid #1e2430", fontSize: 12 }} />
-                <Bar dataKey="cost" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7f0" />
+                <XAxis dataKey="region" tick={{ fontSize: 11, fill: "#9497a8" }} />
+                <YAxis tick={{ fontSize: 11, fill: "#9497a8" }} />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #e5e7f0", fontSize: 12, borderRadius: 8 }} />
+                <Bar dataKey="cost" fill="#6366f1" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

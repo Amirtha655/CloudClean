@@ -18,7 +18,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useDashboardSummary } from "@/hooks/queries";
 import { formatCurrency } from "@/lib/utils";
 
-const COLORS = ["#38bdf8", "#7dd3fc", "#0ea5e9", "#4ade80", "#fbbf24", "#f87171", "#a78bfa", "#f472b6", "#94a3b8", "#34d399"];
+const COLORS = ["#7c3aed", "#3b82f6", "#6366f1", "#10b981", "#f59e0b", "#ef4444", "#ec4899", "#06b6d4", "#84cc16", "#f97316"];
 
 export function DashboardPage() {
   const { data, isLoading } = useDashboardSummary();
@@ -57,18 +57,18 @@ export function DashboardPage() {
               <AreaChart data={data.growthTrend}>
                 <defs>
                   <linearGradient id="costGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#38bdf8" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e2430" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#5b6472" }} tickFormatter={(d) => d.slice(5)} />
-                <YAxis tick={{ fontSize: 11, fill: "#5b6472" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7f0" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9497a8" }} tickFormatter={(d) => d.slice(5)} />
+                <YAxis tick={{ fontSize: 11, fill: "#9497a8" }} />
                 <Tooltip
-                  contentStyle={{ background: "#11151d", border: "1px solid #1e2430", fontSize: 12 }}
-                  labelStyle={{ color: "#e5e7eb" }}
+                  contentStyle={{ background: "#ffffff", border: "1px solid #e5e7f0", fontSize: 12, borderRadius: 8 }}
+                  labelStyle={{ color: "#111827" }}
                 />
-                <Area type="monotone" dataKey="cost" stroke="#38bdf8" fill="url(#costGrad)" strokeWidth={2} />
+                <Area type="monotone" dataKey="cost" stroke="#7c3aed" fill="url(#costGrad)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -93,7 +93,7 @@ export function DashboardPage() {
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#11151d", border: "1px solid #1e2430", fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #e5e7f0", fontSize: 12, borderRadius: 8 }} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -107,11 +107,11 @@ export function DashboardPage() {
         <CardContent className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.byRegion}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e2430" />
-              <XAxis dataKey="region" tick={{ fontSize: 11, fill: "#5b6472" }} />
-              <YAxis tick={{ fontSize: 11, fill: "#5b6472" }} />
-              <Tooltip contentStyle={{ background: "#11151d", border: "1px solid #1e2430", fontSize: 12 }} />
-              <Bar dataKey="cost" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7f0" />
+              <XAxis dataKey="region" tick={{ fontSize: 11, fill: "#9497a8" }} />
+              <YAxis tick={{ fontSize: 11, fill: "#9497a8" }} />
+              <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #e5e7f0", fontSize: 12, borderRadius: 8 }} />
+              <Bar dataKey="cost" fill="#7c3aed" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
