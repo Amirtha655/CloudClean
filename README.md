@@ -24,7 +24,82 @@ AWS: Cognito, STS, EC2, S3, Lambda, RDS, CloudWatch, Systems Manager (deployment
 
 ## Connecting a real AWS account
 
-CloudClean scans an account by assuming a cross-account IAM role via STS — no long-lived access keys. To scan your own account: create a role that trusts CloudClean's platform role with an External ID, attach a read-only permissions policy, then connect it in the app with the role ARN and External ID. Ask in-app or see `deploy/setup.sh` for the exact policy documents used on the platform side.
+CloudClean scans an account by assuming a cross-account IAM role via STS — no long-lived access keys ever touch the app. Any AWS account can be connected once its owner sets up the trust role below.
+
+### 1. Pick an External ID
+
+Any random string you'll remember, e.g. `cloudclean-ext-8841`. This is a shared secret that stops someone else from guessing your role ARN and assuming it themselves.
+
+### 2. Create the role
+
+**CLI:**
+```bash
+# trust-policy.json
+cat > trust-policy.json <<'EOF'
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": { "AWS": "arn:aws:iam::647106553742:role/CloudCleanEC2Role" },
+    "Action": "sts:AssumeRole",
+    "Condition": { "StringEquals": { "sts:ExternalId": "cloudclean-ext-8841" } }
+  }]
+}
+EOF
+
+aws sts get-caller-identity   # confirm you're authenticated as the account you want scanned
+aws iam create-role \
+  --role-name CloudCleanReadOnly \
+  --assume-role-policy-document file://trust-policy.json
+```
+Copy the `Arn` from the output — you'll need it in step 4.
+
+**Console:** IAM → Roles → Create role → **Custom trust policy** → paste the same JSON (with your own External ID) → Next → skip permissions for now → name it `CloudCleanReadOnly` → Create role. Copy the **ARN** shown at the top of the role's page.
+
+### 3. Attach read-only permissions
+
+```bash
+cat > scan-permissions.json <<'EOF'
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "ec2:DescribeInstances", "ec2:DescribeVolumes",
+      "ec2:DescribeAddresses", "ec2:DescribeSecurityGroups",
+      "s3:ListAllMyBuckets", "s3:GetBucketLocation",
+      "s3:ListBucket", "s3:GetBucketTagging",
+      "lambda:ListFunctions", "lambda:ListTags",
+      "cloudwatch:GetMetricStatistics", "rds:DescribeDBInstances"
+    ],
+    "Resource": "*"
+  }]
+}
+EOF
+
+aws iam put-role-policy \
+  --role-name CloudCleanReadOnly \
+  --policy-name scan-readonly \
+  --policy-document file://scan-permissions.json
+```
+No `Delete*`/`Terminate*`/`Modify*` actions anywhere — CloudClean's "cleanup" only ever marks rows in its own database, it never calls a destructive AWS API.
+
+**Console:** on the role's page → **Add permissions** → **Create inline policy** → JSON tab → paste the policy above → name it `scan-readonly` → Create policy.
+
+### 4. Connect it in CloudClean
+
+Log in → **AWS Accounts** → Connect New Account:
+
+| Field | Value |
+|---|---|
+| Account name | anything |
+| AWS Account ID | your 12-digit account ID (`aws sts get-caller-identity`) |
+| Role ARN | from step 2 |
+| External ID | from step 1 |
+
+Click **Connect account**, optionally **Validate**, then **Scan now**. Status goes `pending` → `scanning` → `connected`, and real resources appear in Dashboard/Resource Explorer once it's done (~30-90s depending on how much Lambda you have).
+
+**Troubleshooting:** status flips to `error` on Validate/Scan → almost always a mismatched Role ARN or External ID (both are case-sensitive, check them character-for-character). `AccessDenied` on a specific call → add the missing action to `scan-permissions.json` and re-run step 3.
 
 ## Running locally
 
