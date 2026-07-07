@@ -67,6 +67,19 @@ class Resource(Base):
     account: Mapped["AwsAccount"] = relationship(back_populates="resources")
 
 
+class ScanSnapshot(Base):
+    """One row per completed scan — the dashboard/cost trend charts are built
+    from these, so the trend is always real scan history, never synthesized."""
+
+    __tablename__ = "scan_snapshots"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=gen_id)
+    account_id: Mapped[str] = mapped_column(ForeignKey("aws_accounts.id"))
+    taken_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    total_resources: Mapped[int] = mapped_column(Integer, default=0)
+    total_cost: Mapped[float] = mapped_column(Float, default=0)
+
+
 class DependencyEdge(Base):
     __tablename__ = "dependency_edges"
 

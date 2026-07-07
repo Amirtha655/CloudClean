@@ -50,9 +50,16 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Cost & Resource Trend (14 days)</CardTitle>
+            <CardTitle>Cost Trend (from your scan history)</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
+            {data.growthTrend.length < 2 ? (
+              <div className="flex h-full items-center justify-center text-sm text-text-faint">
+                {data.growthTrend.length === 0
+                  ? "Run a scan to start building your trend."
+                  : "One scan recorded — scan again later to see a trend over time."}
+              </div>
+            ) : (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.growthTrend}>
                 <defs>
@@ -71,6 +78,7 @@ export function DashboardPage() {
                 <Area type="monotone" dataKey="cost" stroke="#7c3aed" fill="url(#costGrad)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 

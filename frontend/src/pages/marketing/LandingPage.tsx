@@ -15,8 +15,6 @@ import {
 } from "lucide-react";
 import { MarketingNav } from "@/components/layout/MarketingNav";
 
-const logos = ["awslogo", "acme", "nimbus", "orbitpay", "hexafirm", "vertexio"];
-
 const marqueeWords = [
   "Multi-Region Scanning",
   "Dependency Graphs",
@@ -25,16 +23,19 @@ const marqueeWords = [
   "Real AWS Data",
 ];
 
+// Each card states an actual rule of the recommendation engine
+// (see backend/app/aws/scanner.py) — the confidence numbers are the
+// real constants the engine assigns, not marketing copy.
 const showcase = [
-  { label: "EC2 stopped 47 days", sub: "Terminate · 94% confidence", icon: Server, from: "from-violet-500", to: "to-indigo-500" },
+  { label: "EC2 stopped", sub: "Terminate · confidence grows with days stopped", icon: Server, from: "from-violet-500", to: "to-indigo-500" },
   { label: "S3 bucket empty", sub: "Delete · 90% confidence", icon: Database, from: "from-blue-500", to: "to-cyan-500" },
-  { label: "Dependency risk: HIGH", sub: "3 resources affected", icon: ShieldAlert, from: "from-rose-500", to: "to-orange-400" },
-  { label: "Lambda idle 30+ days", sub: "Delete · 92% confidence", icon: Zap, from: "from-amber-500", to: "to-yellow-400" },
+  { label: "3+ dependents", sub: "Risk automatically rated HIGH", icon: ShieldAlert, from: "from-rose-500", to: "to-orange-400" },
+  { label: "Lambda idle 30 days", sub: "Delete · 92% confidence", icon: Zap, from: "from-amber-500", to: "to-yellow-400" },
   { label: "EBS unattached", sub: "Delete · 88% confidence", icon: HardDrive, from: "from-emerald-500", to: "to-teal-400" },
   { label: "Elastic IP unattached", sub: "Release · 95% confidence", icon: Globe2, from: "from-fuchsia-500", to: "to-pink-400" },
-  { label: "Cost trend, 30 days", sub: "-18% after cleanup", icon: FileBarChart, from: "from-indigo-500", to: "to-blue-400" },
-  { label: "Cleanup plan ready", sub: "22 resources · $38/mo saved", icon: ClipboardList, from: "from-purple-500", to: "to-violet-400" },
-  { label: "Security group graph", sub: "EC2 → SG → VPC", icon: Network, from: "from-cyan-500", to: "to-sky-400" },
+  { label: "Cost trend", sub: "Every point is a real recorded scan", icon: FileBarChart, from: "from-indigo-500", to: "to-blue-400" },
+  { label: "Dry run first", sub: "Preview deletes nothing", icon: ClipboardList, from: "from-purple-500", to: "to-violet-400" },
+  { label: "Dependency edges", sub: "EC2 → EBS · EC2 → SG · EC2 → EIP", icon: Network, from: "from-cyan-500", to: "to-sky-400" },
   { label: "Live scan in progress", sub: "status: scanning → connected", icon: Activity, from: "from-orange-500", to: "to-amber-400" },
 ];
 
@@ -45,7 +46,7 @@ const steps = [
   },
   {
     title: "Scan & discover",
-    desc: "Real boto3 calls across every region map your resources and how they depend on each other.",
+    desc: "Real boto3 calls across regions map your resources and how they depend on each other.",
   },
   {
     title: "Clean with confidence",
@@ -54,7 +55,7 @@ const steps = [
 ];
 
 const features = [
-  { title: "Multi-Region Scanner", desc: "Scans 30+ AWS services across every region in minutes — EC2, Lambda, RDS, S3, VPC, and more.", icon: Sparkles },
+  { title: "Multi-Region Scanner", desc: "Real boto3 calls across 4 regions covering EC2, EBS, Elastic IPs, Security Groups, S3, Lambda, and RDS.", icon: Sparkles },
   { title: "Dependency Graph Engine", desc: "See exactly what breaks before you delete anything.", icon: Network },
   { title: "Smart Recommendations", desc: "Confidence-scored suggestions: terminate, delete, release — with the reasoning behind each one.", icon: BrainCircuit },
   { title: "Cleanup Planner & Dry Run", desc: "Preview the full plan, estimated savings, and warnings before a single resource is touched.", icon: ClipboardList },
@@ -82,28 +83,26 @@ export function LandingPage() {
               <span className="gradient-text">clean AWS</span> with confidence.
             </h1>
             <p className="mt-5 max-w-lg text-base text-text-dim">
-              CloudClean scans every region and service, maps what depends on what, and
-              shows you the safe way to cut your AWS bill.
+              CloudClean scans your AWS account across regions, maps what depends on what,
+              and shows you the safe way to cut your bill.
             </p>
 
-            <div className="mt-7 flex max-w-md items-center gap-2 rounded-full border border-border bg-surface p-1.5 shadow-sm">
-              <input
-                type="text"
-                placeholder="Paste a resource ARN or connect your account..."
-                className="flex-1 bg-transparent px-3 text-sm text-text placeholder:text-text-faint outline-none"
-              />
+            <div className="mt-7 flex items-center gap-3">
               <Link
                 to="/signup"
-                className="gradient-bg shrink-0 rounded-full px-5 py-2 text-sm font-medium text-white shadow-sm hover:opacity-90"
+                className="gradient-bg rounded-full px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:opacity-90"
               >
-                Scan
+                Get started free
               </Link>
+              <a
+                href="#how-it-works"
+                className="rounded-full border border-border bg-surface px-6 py-2.5 text-sm font-medium text-text hover:border-border-hover"
+              >
+                How it works
+              </a>
             </div>
             <p className="mt-3 text-xs text-text-faint">
-              Need inspiration? Try:{" "}
-              <span className="rounded-full bg-surface-2 px-2 py-0.5 text-text-dim">
-                i-0af31cd9, stopped for 47 days
-              </span>
+              Scans a real AWS account via a read-only cross-account IAM role — no access keys.
             </p>
           </div>
 
@@ -141,12 +140,13 @@ export function LandingPage() {
       </section>
 
       <section id="showcase" className="relative z-10 mx-auto max-w-6xl px-6 py-20 text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-accent">See it in action</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-accent">The rules engine</p>
         <h2 className="mt-2 text-3xl font-semibold tracking-tight text-text">
-          Real findings from a real scan
+          What the scanner flags
         </h2>
         <p className="mx-auto mt-3 max-w-lg text-sm text-text-dim">
-          Every card below is a genuine recommendation type CloudClean produces from real AWS data — not illustrations.
+          These are the engine's actual detection rules and the real confidence scores it assigns —
+          taken straight from the scanner's source code.
         </p>
 
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -159,19 +159,6 @@ export function LandingPage() {
               <span className="text-xs font-semibold leading-tight">{s.label}</span>
               <span className="text-[10px] text-white/80">{s.sub}</span>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="relative z-10 mx-auto max-w-4xl px-6 py-16 text-center">
-        <p className="mb-6 text-xs uppercase tracking-wide text-text-faint">
-          Built for teams running real AWS workloads
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 opacity-50">
-          {logos.map((l) => (
-            <span key={l} className="text-sm font-medium text-text-dim">
-              {l}
-            </span>
           ))}
         </div>
       </section>

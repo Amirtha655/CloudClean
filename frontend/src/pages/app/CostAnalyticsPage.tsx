@@ -34,18 +34,26 @@ export function CostAnalyticsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Cost Trend (30 days)</CardTitle>
+          <CardTitle>Cost Trend (from your scan history)</CardTitle>
         </CardHeader>
         <CardContent className="h-64">
+          {data.trend.length < 2 ? (
+            <div className="flex h-full items-center justify-center text-sm text-text-faint">
+              {data.trend.length === 0
+                ? "Run a scan to start building your trend."
+                : "One scan recorded — scan again later to see a trend over time."}
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.trend}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7f0" />
               <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9497a8" }} tickFormatter={(d) => d.slice(5)} />
               <YAxis tick={{ fontSize: 11, fill: "#9497a8" }} />
               <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #e5e7f0", fontSize: 12, borderRadius: 8 }} />
-              <Line type="monotone" dataKey="cost" stroke="#7c3aed" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="cost" stroke="#7c3aed" strokeWidth={2} dot />
             </LineChart>
           </ResponsiveContainer>
+          )}
         </CardContent>
       </Card>
 

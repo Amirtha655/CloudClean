@@ -1,14 +1,13 @@
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
-import random
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.security import get_current_user
+from app.core.trends import real_trend
 from app.db.base import get_db
 from app.db import models
-from app.schemas.common import CostAnalyticsOut, ServiceCount, RegionCount, TrendPoint, ResourceOut
+from app.schemas.common import CostAnalyticsOut, ServiceCount, RegionCount, ResourceOut
 
 router = APIRouter(prefix="/cost", tags=["cost"])
 
@@ -31,16 +30,6 @@ def analytics(db: Session = Depends(get_db), user: models.User = Depends(get_cur
     total_cost = sum(r.monthly_cost for r in resources)
     savings = sum(r.monthly_cost for r in resources if r.unused)
 
-    now = datetime.now(timezone.utc)
-    trend = [
-        TrendPoint(
-            date=(now - timedelta(days=i)).strftime("%Y-%m-%d"),
-            resources=len(resources),
-            cost=round(total_cost * (0.7 + (29 - i) * 0.01) + random.uniform(-5, 5), 2),
-        )
-        for i in range(29, -1, -1)
-    ]
-
     top_expensive = sorted(resources, key=lambda r: -r.monthly_cost)[:8]
 
     return CostAnalyticsOut(
@@ -52,6 +41,6 @@ def analytics(db: Session = Depends(get_db), user: models.User = Depends(get_cur
         by_region=[
             RegionCount(region=r, count=len(v), cost=round(sum(v), 2)) for r, v in by_region.items()
         ],
-        trend=trend,
+        trend=real_trend(db, user),
         top_expensive=[ResourceOut.model_validate(r) for r in top_expensive],
     )

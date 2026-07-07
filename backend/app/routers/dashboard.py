@@ -1,14 +1,13 @@
-import random
-from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.security import get_current_user
+from app.core.trends import real_trend
 from app.db.base import get_db
 from app.db import models
-from app.schemas.common import DashboardSummary, ServiceCount, RegionCount, TrendPoint
+from app.schemas.common import DashboardSummary, ServiceCount, RegionCount
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -43,18 +42,6 @@ def summary(db: Session = Depends(get_db), user: models.User = Depends(get_curre
         .count()
     )
 
-    trend = []
-    base = max(len(resources) - 12, 5)
-    now = datetime.now(timezone.utc)
-    for i in range(14, 0, -1):
-        trend.append(
-            TrendPoint(
-                date=(now - timedelta(days=i)).strftime("%Y-%m-%d"),
-                resources=base + random.randint(-2, 2) + (14 - i) // 2,
-                cost=round(total_cost * (0.75 + (14 - i) * 0.015), 2),
-            )
-        )
-
     return DashboardSummary(
         total_resources=len(resources),
         monthly_cost=round(total_cost, 2),
@@ -68,6 +55,6 @@ def summary(db: Session = Depends(get_db), user: models.User = Depends(get_curre
             RegionCount(region=r, count=len(v), cost=round(sum(v), 2))
             for r, v in sorted(by_region.items(), key=lambda kv: -sum(kv[1]))
         ],
-        growth_trend=trend,
+        growth_trend=real_trend(db, user),
         recommendation_count=rec_count,
     )

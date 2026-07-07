@@ -124,6 +124,14 @@ def run_scan(db: Session, account: models.AwsAccount) -> models.AwsAccount:
                 )
             )
 
+    db.add(
+        models.ScanSnapshot(
+            account_id=account.id,
+            total_resources=len(new_rows),
+            total_cost=round(sum(row.monthly_cost for row, _res in new_rows), 2),
+        )
+    )
+
     account.last_scan_at = datetime.now(timezone.utc)
     account.status = "connected"
     db.commit()
