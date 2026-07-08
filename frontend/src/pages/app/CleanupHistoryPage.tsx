@@ -1,8 +1,9 @@
-import { Download } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Download, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { useCleanupHistory } from "@/hooks/queries";
+import { useCleanupHistory, useInvalidateScanResults } from "@/hooks/queries";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 
 const statusVariant = {
@@ -14,6 +15,14 @@ const statusVariant = {
 
 export function CleanupHistoryPage() {
   const { data: history, isLoading } = useCleanupHistory();
+  const invalidate = useInvalidateScanResults();
+  const wasRunning = useRef(false);
+
+  useEffect(() => {
+    const running = history?.some((h) => h.status === "running") ?? false;
+    if (wasRunning.current && !running) invalidate();
+    wasRunning.current = running;
+  }, [history, invalidate]);
 
   return (
     <div className="space-y-4">
@@ -49,17 +58,22 @@ export function CleanupHistoryPage() {
                   <td className="px-2 py-2.5 text-text-dim">{h.user}</td>
                   <td className="px-2 py-2.5 text-text-dim">{formatDateTime(h.startedAt)}</td>
                   <td className="px-2 py-2.5">
-                    <Badge variant={statusVariant[h.status]}>{h.status}</Badge>
+                    <Badge variant={statusVariant[h.status]}>
+                      {h.status === "running" && <Loader2 className="h-3 w-3 animate-spin" />}
+                      {h.status}
+                    </Badge>
                   </td>
                   <td className="px-2 py-2.5 text-text">{h.resourcesDeleted}</td>
                   <td className="px-2 py-2.5 text-text">{h.resourcesFailed}</td>
                   <td className="px-2 py-2.5 text-risk-low">{formatCurrency(h.savings)}/mo</td>
                   <td className="px-2 py-2.5">
-                    <a href={`/api/reports/cleanup/${h.id}.pdf`} target="_blank" rel="noreferrer">
-                      <Button size="sm" variant="ghost" icon={<Download className="h-3.5 w-3.5" />}>
-                        PDF
-                      </Button>
-                    </a>
+                    {h.status !== "running" && (
+                      <a href={`/api/reports/cleanup/${h.id}.pdf`} target="_blank" rel="noreferrer">
+                        <Button size="sm" variant="ghost" icon={<Download className="h-3.5 w-3.5" />}>
+                          PDF
+                        </Button>
+                      </a>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -177,6 +177,8 @@ export function useCleanupHistory() {
   return useQuery<CleanupHistoryItem[]>({
     queryKey: ["history"],
     queryFn: async () => (await api.get("/history")).data,
+    refetchInterval: (query) =>
+      query.state.data?.some((h) => h.status === "running") ? 3000 : false,
   });
 }
 

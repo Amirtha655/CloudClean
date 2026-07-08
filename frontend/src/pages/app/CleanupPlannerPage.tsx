@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, Download, PlayCircle, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AlertTriangle, Download, PlayCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { RiskBadge } from "@/components/ui/Badge";
 import { useCreatePlan, useExecutePlan, useResources } from "@/hooks/queries";
 import { formatCurrency } from "@/lib/utils";
@@ -10,9 +12,12 @@ import type { CleanupPlan } from "@/types";
 const ENVIRONMENTS = ["production", "staging", "development", "testing"];
 
 export function CleanupPlannerPage() {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [plan, setPlan] = useState<CleanupPlan | null>(null);
   const [result, setResult] = useState<{ dryRun: boolean; deleted: number; savings: number } | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
 
   const { data: resources } = useResources({});
   const createPlan = useCreatePlan();
@@ -74,10 +79,12 @@ export function CleanupPlannerPage() {
     executePlan.mutate(
       { planId: plan.id, dryRun: false },
       {
-        onSuccess: (data) => {
-          setResult({ dryRun: false, deleted: data.resourcesDeleted, savings: data.savings });
+        onSuccess: () => {
           setSelected(new Set());
           setPlan(null);
+          setConfirming(false);
+          setConfirmText("");
+          navigate("/app/history");
         },
       }
     );
@@ -202,16 +209,43 @@ export function CleanupPlannerPage() {
                   <Button variant="secondary" icon={<Download className="h-3.5 w-3.5" />} onClick={downloadPlan}>
                     Download plan
                   </Button>
-                  <Button variant="danger" icon={<Trash2 className="h-3.5 w-3.5" />} onClick={execute}>
-                    Execute cleanup
-                  </Button>
+                  {!confirming ? (
+                    <Button variant="danger" icon={<AlertTriangle className="h-3.5 w-3.5" />} onClick={() => setConfirming(true)}>
+                      Permanently delete in AWS
+                    </Button>
+                  ) : (
+                    <div className="space-y-2 rounded-md border border-risk-high/40 bg-risk-high/5 p-3">
+                      <p className="text-xs text-risk-high">
+                        This permanently deletes {plan.totalCount} real AWS resource(s). This cannot be undone.
+                        Type <b>DELETE</b> to confirm.
+                      </p>
+                      <Input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="DELETE" />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setConfirming(false);
+                            setConfirmText("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="danger"
+                          disabled={confirmText !== "DELETE" || executePlan.isPending}
+                          onClick={execute}
+                        >
+                          {executePlan.isPending ? "Starting…" : "Delete for real"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {result && (
+                {result?.dryRun && (
                   <div className="rounded-md border border-border bg-surface-2 p-3 text-xs text-text-dim">
-                    {result.dryRun
-                      ? `Dry run complete — would delete ${result.deleted} resources, saving ${formatCurrency(result.savings)}/mo. Nothing was changed.`
-                      : `Cleanup complete — deleted ${result.deleted} resources, saving ${formatCurrency(result.savings)}/mo.`}
+                    Dry run complete — would delete {result.deleted} resources, saving{" "}
+                    {formatCurrency(result.savings)}/mo. Nothing was changed.
                   </div>
                 )}
               </>

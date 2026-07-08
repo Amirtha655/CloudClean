@@ -1,12 +1,15 @@
+import logging
 from collections import defaultdict
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+from app.aws.deleter import delete_resources
+from app.aws.session import get_session
 from app.core.security import get_current_user
-from app.db.base import get_db
+from app.db.base import get_db, SessionLocal
 from app.db import models
 from app.schemas.common import (
     CleanupPlanCreate,
@@ -16,7 +19,47 @@ from app.schemas.common import (
     CleanupHistoryOut,
 )
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/planner", tags=["planner"])
+
+
+def _run_deletion_background(history_id: str, account_id: str, resource_ids: list[str]) -> None:
+    """Actually delete the resources in AWS, then reconcile the DB and history row."""
+    db = SessionLocal()
+    try:
+        history = db.get(models.CleanupHistory, history_id)
+        account = db.get(models.AwsAccount, account_id)
+        resources = db.query(models.Resource).filter(models.Resource.id.in_(resource_ids)).all()
+        if not history or not account:
+            return
+        try:
+            session = get_session(account)
+            deleted, failed = delete_resources(session, resources)
+        except Exception as e:
+            logger.exception("Deletion run failed for history %s", history_id)
+            history.status = "failed"
+            history.finished_at = datetime.now(timezone.utc)
+            history.resources_failed = len(resources)
+            history.resource_names = [f"{r.name}: run error {e}" for r in resources]
+            db.commit()
+            return
+
+        for r in deleted:
+            r.deleted = True
+
+        history.status = "completed" if not failed else "failed"
+        history.finished_at = datetime.now(timezone.utc)
+        history.resources_deleted = len(deleted)
+        history.resources_failed = len(failed)
+        history.savings = round(sum(r.monthly_cost for r in deleted), 2)
+        history.resource_names = (
+            [r.name for r in deleted]
+            + [f"FAILED {r.name}: {reason.splitlines()[0][:160]}" for r, reason in failed]
+        )
+        db.commit()
+    finally:
+        db.close()
 
 
 def _owned_resources(db: Session, user: models.User, resource_ids: list[str]):
@@ -131,6 +174,7 @@ def get_plan(
 @router.post("/plan/{plan_id}/execute", response_model=CleanupHistoryOut)
 def execute_plan(
     plan_id: str,
+    background_tasks: BackgroundTasks,
     dry_run: bool = True,
     db: Session = Depends(get_db),
     user: models.User = Depends(get_current_user),
@@ -140,9 +184,11 @@ def execute_plan(
         raise HTTPException(404, "Plan not found")
 
     resources = _owned_resources(db, user, plan.resource_ids)
-    names = [r.name for r in resources]
+    if not resources:
+        raise HTTPException(400, "No matching resources to delete")
 
     if dry_run:
+        # Preview only — nothing in AWS or the database is touched.
         return CleanupHistoryOut(
             id="dry-run",
             user=user.email,
@@ -154,19 +200,21 @@ def execute_plan(
             savings=0,
         )
 
-    for r in resources:
-        r.deleted = True
-
+    # Real deletion. All selected resources belong to one connected account.
+    account_id = resources[0].account_id
     history = models.CleanupHistory(
         user=user.email,
-        finished_at=datetime.now(timezone.utc),
-        status="completed",
-        resources_deleted=len(resources),
+        status="running",
+        resources_deleted=0,
         resources_failed=0,
-        savings=plan.estimated_savings,
-        resource_names=names,
+        savings=0,
+        resource_names=[r.name for r in resources],
     )
     db.add(history)
     db.commit()
     db.refresh(history)
+
+    background_tasks.add_task(
+        _run_deletion_background, history.id, account_id, [r.id for r in resources]
+    )
     return history

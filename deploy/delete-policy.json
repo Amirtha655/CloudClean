@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "CloudCleanDelete",
+    "Effect": "Allow",
+    "Action": [
+      "ec2:TerminateInstances", "ec2:DeleteVolume",
+      "ec2:ReleaseAddress", "ec2:DeleteSecurityGroup",
+      "lambda:DeleteFunction",
+      "s3:DeleteObject", "s3:DeleteObjectVersion",
+      "s3:DeleteBucket", "s3:ListBucketVersions",
+      "rds:DeleteDBInstance"
+    ],
+    "Resource": "*"
+  }]
+}

@@ -2,7 +2,7 @@
 
 An AWS resource lifecycle & cost tool — scans a real AWS account, maps dependencies between resources, and recommends safe cleanups with confidence scores instead of just deleting things blindly.
 
-**Live demo:** http://13.233.99.134 — sign up with a real email, verify, log in, connect an AWS account, scan it.
+**Live demo:** http://13.233.99.134 — access is IP-restricted (the site is not open to the public) because executing a cleanup performs **real, irreversible AWS deletions**.
 
 <!-- Drop a screenshot or GIF of the landing page / dashboard / cleanup planner flow here -->
 
@@ -11,7 +11,7 @@ An AWS resource lifecycle & cost tool — scans a real AWS account, maps depende
 - **Multi-region scanner** — real boto3 calls across EC2, EBS, Elastic IPs, Security Groups, S3, Lambda, and RDS. Any AWS account can be scanned by setting up a cross-account IAM role (see below).
 - **Dependency graph** — before you delete an EC2 instance, see exactly what else depends on it (EBS volumes, security groups, Elastic IPs) and a computed risk score.
 - **Smart recommendations** — rule-based over real signals (stopped state, empty buckets, zero CloudWatch invocations, unattached volumes), not ML. Each gets a confidence score and an action: Terminate / Delete / Release.
-- **Cleanup planner with dry run** — build a plan, see dependency warnings and estimated savings, preview with zero side effects, then execute for real.
+- **Cleanup planner with dry run + real execution** — build a plan, see dependency warnings and estimated savings, preview with zero side effects (dry run), then — after typing DELETE to confirm — permanently delete the selected resources in AWS. Deletion runs in dependency-safe order (release Elastic IPs → terminate EC2 → delete detached volumes → security groups → Lambda → empty+delete S3 → RDS) with per-resource success/failure recorded.
 - **Cleanup history + PDF reports** — every run you actually execute is logged and downloadable as a PDF.
 - **Real Cognito auth** — real signup/verify/login, with per-user data isolation.
 - **Async scanning** — a scan runs in the background so the UI never blocks.
